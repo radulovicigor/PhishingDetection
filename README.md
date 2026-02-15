@@ -6,6 +6,7 @@ A production-ready machine learning pipeline for detecting phishing emails using
 
 ## Features
 
+
 ## Igor Radulovic, Jovana Mitric, Mija Ljuka, Katarina Kovijanic
 
 - ✅ **Full ML Pipeline**: Data preprocessing → Feature engineering → Training → Evaluation
