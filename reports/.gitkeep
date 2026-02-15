@@ -1,0 +1,6 @@
+# Evaluation reports will be generated here
+# - metrics.json: All evaluation metrics including FPR
+# - confusion_matrix.csv: 2x2 confusion matrix
+# - threshold_metrics.csv: Metrics at various thresholds
+# - top_features_phishing.csv: Top 30 phishing indicators
+# - top_features_legit.csv: Top 30 legitimate indicators

@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phish Detector - Email Security Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --bg-input: #0d1320;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-cyan: #06b6d4;
+            --accent-cyan-glow: rgba(6, 182, 212, 0.3);
+            --accent-purple: #8b5cf6;
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.3);
+            --success: #22c55e;
+            --success-glow: rgba(34, 197, 94, 0.3);
+            --warning: #f59e0b;
+            --border: #1e293b;
+            --border-light: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-primary) 0%, #0d1525 100%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-top: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 32px var(--accent-cyan-glow);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: var(--bg-card);
+            padding: 0.5rem;
+            border-radius: 16px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-cyan), #0891b2);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-light);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Scanner Layout */
+        .scanner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .scanner-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px var(--accent-cyan-glow);
+        }
+
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Button */
+        .btn {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), #0891b2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-cyan-glow);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results */
+        .result-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 280px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .result-placeholder-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .result-container {
+            display: none;
+        }
+
+        .result-container.visible {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .verdict {
+            padding: 1.25rem;
+            border-radius: 14px;
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .verdict.phishing {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .verdict.legit {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .verdict-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .verdict-label {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .verdict.phishing .verdict-label { color: var(--danger); }
+        .verdict.legit .verdict-label { color: var(--success); }
+
+        /* Score Bar */
+        .score-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .score-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.4rem;
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .score-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .score-bar {
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .score-fill.danger { background: linear-gradient(90deg, var(--warning), var(--danger)); }
+        .score-fill.safe { background: linear-gradient(90deg, var(--success), #16a34a); }
+
+        /* Reasons */
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reasons-list {
+            list-style: none;
+        }
+
+        .reason-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.6rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+        }
+
+        .reason-icon {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+        }
+
+        .reason-icon.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .reason-icon.info {
+            background: rgba(6, 182, 212, 0.2);
+            color: var(--accent-cyan);
+        }
+
+        /* Heuristics */
+        .heuristics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .heuristic-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0.8rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .heuristic-name { color: var(--text-secondary); }
+        .heuristic-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .heuristic-value.highlight { color: var(--warning); }
+        .heuristic-value.danger { color: var(--danger); }
+        .heuristic-value.safe { color: var(--success); }
+
+        /* ====================== DASHBOARD ====================== */
+        
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-2px);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-value.success { color: var(--success); }
+        .metric-value.warning { color: var(--warning); }
+        .metric-value.danger { color: var(--danger); }
+        .metric-value.info { color: var(--accent-cyan); }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .metric-sublabel {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1000px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Confusion Matrix */
+        .confusion-matrix {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr;
+            grid-template-rows: auto 1fr 1fr;
+            gap: 4px;
+            max-width: 350px;
+            margin: 0 auto;
+        }
+
+        .cm-corner { background: transparent; }
+        
+        .cm-header {
+            padding: 0.75rem;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .cm-row-header {
+            padding: 0.75rem;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+
+        .cm-cell {
+            padding: 1.5rem;
+            text-align: center;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cm-cell .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .cm-cell .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .cm-tn {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .cm-tn .value { color: var(--success); }
+
+        .cm-fp {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .cm-fp .value { color: var(--danger); }
+
+        .cm-fn {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .cm-fn .value { color: var(--warning); }
+
+        .cm-tp {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+        .cm-tp .value { color: var(--accent-cyan); }
+
+        .cm-labels {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Threshold Chart */
+        .threshold-chart {
+            padding: 1rem 0;
+        }
+
+        .threshold-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 60px;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .threshold-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .threshold-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .threshold-bar {
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .bar-precision { background: var(--accent-cyan); }
+        .bar-recall { background: var(--success); }
+        .bar-f1 { background: var(--accent-purple); }
+        .bar-fpr { background: var(--danger); }
+
+        .threshold-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        /* Features List */
+        .features-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 800px) {
+            .features-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .feature-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .feature-name {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .feature-coef {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .feature-coef.positive { color: var(--danger); }
+        .feature-coef.negative { color: var(--success); }
+
+        .feature-bar {
+            width: 60px;
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-left: 0.5rem;
+        }
+
+        .feature-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .feature-bar-fill.positive { background: var(--danger); }
+        .feature-bar-fill.negative { background: var(--success); }
+
+        /* Error & Loading */
+        .dashboard-loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+
+        .dashboard-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--danger);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .status-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success-glow);
+        }
+
+        .status-dot.offline { background: var(--danger); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🎣</div>
+                <h1>Phish Detector</h1>
+            </div>
+            <p class="subtitle">ML-Powered Email Security Scanner</p>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="scanner">
+                📧 Scanner
+            </button>
+            <button class="tab-btn" data-tab="dashboard">
+                📊 Dashboard
+            </button>
+        </div>
+
+        <!-- Scanner Tab -->
+        <div class="tab-content active" id="scanner-tab">
+            <div class="scanner-grid">
+                <!-- Input Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📧</div>
+                        <h2 class="card-title">Email Content</h2>
+                    </div>
+                    
+                    <form id="scanForm">
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" placeholder="Enter email subject...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="body">Body</label>
+                            <textarea id="body" placeholder="Paste the email body content here..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="urls">URLs (optional)</label>
+                            <input type="text" id="urls" placeholder="Any URLs from the email...">
+                        </div>
+
+                        <button type="submit" class="btn" id="scanBtn">
+                            <span id="btnText">🔍 Scan Email</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📊</div>
+                        <h2 class="card-title">Analysis Results</h2>
+                    </div>
+
+                    <div class="result-placeholder" id="placeholder">
+                        <div class="result-placeholder-icon">🛡️</div>
+                        <p>Enter email content and click<br>"Scan Email" to analyze</p>
+                    </div>
+
+                    <div class="error-message" id="errorMessage" style="display:none;">
+                        <span>⚠️</span>
+                        <span id="errorText"></span>
+                    </div>
+
+                    <div class="result-container" id="results">
+                        <div class="verdict" id="verdict">
+                            <div class="verdict-icon" id="verdictIcon"></div>
+                            <div class="verdict-label" id="verdictLabel"></div>
+                        </div>
+
+                        <div class="score-section">
+                            <div class="score-header">
+                                <span class="score-label">Phishing Probability</span>
+                                <span class="score-value" id="scoreValue">0%</span>
+                            </div>
+                            <div class="score-bar">
+                                <div class="score-fill" id="scoreFill"></div>
+                            </div>
+                        </div>
+
+                        <div class="reasons-section" style="margin-bottom:1rem;">
+                            <div class="section-title">Analysis Reasons</div>
+                            <ul class="reasons-list" id="reasonsList"></ul>
+                        </div>
+
+                        <div class="heuristics-section">
+                            <div class="section-title">Detected Indicators</div>
+                            <div class="heuristics-grid" id="heuristicsGrid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content" id="dashboard-tab">
+            <div id="dashboardLoading" class="dashboard-loading">
+                <div class="spinner" style="width:40px;height:40px;margin:0 auto 1rem;border-width:3px;"></div>
+                <p>Loading metrics...</p>
+            </div>
+
+            <div id="dashboardError" class="dashboard-error" style="display:none;">
+                <p>⚠️ Could not load metrics</p>
+                <p style="font-size:0.85rem;margin-top:0.5rem;">Run evaluation first: <code>python -m src.evaluate</code></p>
+            </div>
+
+            <div id="dashboardContent" style="display:none;">
+                <!-- Metrics Cards -->
+                <div class="metrics-grid" id="metricsGrid"></div>
+
+                <!-- Charts Row -->
+                <div class="dashboard-grid">
+                    <!-- Confusion Matrix -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📋</div>
+                            <h2 class="card-title">Confusion Matrix</h2>
+                        </div>
+                        <div id="confusionMatrix"></div>
+                    </div>
+
+                    <!-- Threshold Analysis -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📈</div>
+                            <h2 class="card-title">Threshold Analysis</h2>
+                        </div>
+                        <div id="thresholdChart"></div>
+                    </div>
+                </div>
+
+                <!-- Top Features -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">🔬</div>
+                        <h2 class="card-title">Top Feature Importance</h2>
+                    </div>
+                    <div class="features-container" id="featuresContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Phish Detector v1.0 • ML Model powered by scikit-learn</p>
+            <div class="api-status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Checking API...</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
+                
+                if (btn.dataset.tab === 'dashboard') {
+                    loadDashboard();
+                }
+            });
+        });
+
+        // API Status
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                if (data.status === 'healthy' && data.model_loaded) {
+                    statusDot.classList.add('online');
+                    statusDot.classList.remove('offline');
+                    statusText.textContent = `API Online • Model v${data.model_version}`;
+                } else {
+                    statusDot.classList.add('offline');
+                    statusText.textContent = 'Model not loaded';
+                }
+            } catch (error) {
+                document.getElementById('statusDot').classList.add('offline');
+                document.getElementById('statusText').textContent = 'API Offline';
+            }
+        }
+        checkApiStatus();
+        setInterval(checkApiStatus, 30000);
+
+        // Scanner Form
+        document.getElementById('scanForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const subject = document.getElementById('subject').value.trim();
+            const body = document.getElementById('body').value.trim();
+            const urls = document.getElementById('urls').value.trim();
+
+            if (!subject && !body) {
+                showError('Please enter email subject or body content');
+                return;
+            }
+
+            setLoading(true);
+            hideError();
+            
+            try {
+                const response = await fetch(`${API_URL}/predict/detailed`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, body, urls })
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                displayResults(await response.json());
+            } catch (error) {
+                showError('Failed to connect to API. Make sure the server is running.');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function setLoading(loading) {
+            const btn = document.getElementById('scanBtn');
+            btn.disabled = loading;
+            document.getElementById('btnText').innerHTML = loading 
+                ? '<div class="spinner"></div> Analyzing...' 
+                : '🔍 Scan Email';
+        }
+
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').style.display = 'flex';
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('results').classList.remove('visible');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function displayResults(data) {
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('results').classList.add('visible');
+
+            const isPhishing = data.label === 'PHISHING';
+            const verdict = document.getElementById('verdict');
+            verdict.className = `verdict ${isPhishing ? 'phishing' : 'legit'}`;
+            document.getElementById('verdictIcon').textContent = isPhishing ? '⚠️' : '✅';
+            document.getElementById('verdictLabel').textContent = isPhishing ? 'PHISHING DETECTED' : 'LIKELY LEGITIMATE';
+
+            const score = Math.round(data.score * 100);
+            document.getElementById('scoreValue').textContent = `${score}%`;
+            const scoreFill = document.getElementById('scoreFill');
+            scoreFill.style.width = `${score}%`;
+            scoreFill.className = `score-fill ${score > 50 ? 'danger' : 'safe'}`;
+
+            const reasonsList = document.getElementById('reasonsList');
+            reasonsList.innerHTML = '';
+            (data.reasons || []).forEach(reason => {
+                const isWarning = reason.toLowerCase().includes('phishing');
+                reasonsList.innerHTML += `
+                    <li class="reason-item">
+                        <span class="reason-icon ${isWarning ? 'warning' : 'info'}">${isWarning ? '!' : 'i'}</span>
+                        <span>${escapeHtml(reason)}</span>
+                    </li>`;
+            });
+
+            const heuristicsGrid = document.getElementById('heuristicsGrid');
+            heuristicsGrid.innerHTML = '';
+            if (data.heuristics) {
+                const heuristics = [
+                    { key: 'url_count', label: 'URLs', highlight: v => v > 0 },
+                    { key: 'keyword_hits', label: 'Keywords', highlight: v => v > 3, danger: v => v > 5 },
+                    { key: 'suspicious_tld', label: 'Suspicious TLD', danger: v => v > 0, format: v => v ? 'Yes' : 'No' },
+                    { key: 'uses_shortener', label: 'Shortener', highlight: v => v > 0, format: v => v ? 'Yes' : 'No' },
+                    { key: 'exclamation_count', label: 'Exclamations', highlight: v => v > 2 },
+                    { key: 'caps_ratio', label: 'CAPS Ratio', highlight: v => v > 0.1, format: v => `${Math.round(v * 100)}%` },
+                ];
+                heuristics.forEach(h => {
+                    const value = data.heuristics[h.key];
+                    if (value !== undefined) {
+                        const displayValue = h.format ? h.format(value) : value;
+                        let cls = '';
+                        if (h.danger && h.danger(value)) cls = 'danger';
+                        else if (h.highlight && h.highlight(value)) cls = 'highlight';
+                        heuristicsGrid.innerHTML += `
+                            <div class="heuristic-item">
+                                <span class="heuristic-name">${h.label}</span>
+                                <span class="heuristic-value ${cls}">${displayValue}</span>
+                            </div>`;
+                    }
+                });
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Dashboard
+        let dashboardLoaded = false;
+
+        async function loadDashboard() {
+            if (dashboardLoaded) return;
+
+            try {
+                const response = await fetch(`${API_URL}/metrics`);
+                if (!response.ok) throw new Error('Failed to load metrics');
+                const data = await response.json();
+                
+                document.getElementById('dashboardLoading').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+                
+                renderMetrics(data.metrics);
+                renderConfusionMatrix(data.metrics.confusion_matrix);
+                renderThresholdChart(data.threshold_analysis);
+                renderFeatures(data.top_features_phishing, data.top_features_legit);
+                
+                dashboardLoaded = true;
+            } catch (error) {
+                document.getElementById('dashboardLoading').style.display = 'none';
+                document.getElementById('dashboardError').style.display = 'block';
+            }
+        }
+
+        function renderMetrics(metrics) {
+            const grid = document.getElementById('metricsGrid');
+            const items = [
+                { value: (metrics.accuracy * 100).toFixed(1) + '%', label: 'Accuracy', class: 'success' },
+                { value: (metrics.precision * 100).toFixed(1) + '%', label: 'Precision', class: 'info' },
+                { value: (metrics.recall * 100).toFixed(1) + '%', label: 'Recall', class: 'info' },
+                { value: (metrics.f1_score * 100).toFixed(1) + '%', label: 'F1 Score', class: 'success' },
+                { value: (metrics.roc_auc * 100).toFixed(1) + '%', label: 'ROC-AUC', class: 'success' },
+                { value: (metrics.false_positive_rate * 100).toFixed(2) + '%', label: 'False Positive Rate', sublabel: 'Lower is better', class: metrics.false_positive_rate < 0.02 ? 'success' : 'warning' },
+                { value: metrics.total_samples.toLocaleString(), label: 'Test Samples', class: 'info' },
+                { value: metrics.positive_samples.toLocaleString(), label: 'Phishing Emails', class: 'danger' },
+            ];
+            
+            grid.innerHTML = items.map(item => `
+                <div class="metric-card">
+                    <div class="metric-value ${item.class}">${item.value}</div>
+                    <div class="metric-label">${item.label}</div>
+                    ${item.sublabel ? `<div class="metric-sublabel">${item.sublabel}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderConfusionMatrix(cm) {
+            const container = document.getElementById('confusionMatrix');
+            container.innerHTML = `
+                <div class="confusion-matrix">
+                    <div class="cm-corner"></div>
+                    <div class="cm-header">Pred: Legit</div>
+                    <div class="cm-header">Pred: Phishing</div>
+                    
+                    <div class="cm-row-header">Actual: Legit</div>
+                    <div class="cm-cell cm-tn">
+                        <span class="value">${cm.true_negatives.toLocaleString()}</span>
+                        <span class="label">True Neg</span>
+                    </div>
+                    <div class="cm-cell cm-fp">
+                        <span class="value">${cm.false_positives.toLocaleString()}</span>
+                        <span class="label">False Pos</span>
+                    </div>
+                    
+                    <div class="cm-row-header">Actual: Phishing</div>
+                    <div class="cm-cell cm-fn">
+                        <span class="value">${cm.false_negatives.toLocaleString()}</span>
+                        <span class="label">False Neg</span>
+                    </div>
+                    <div class="cm-cell cm-tp">
+                        <span class="value">${cm.true_positives.toLocaleString()}</span>
+                        <span class="label">True Pos</span>
+                    </div>
+                </div>
+                <div class="cm-labels">
+                    <span>🟢 Correct predictions</span>
+                    <span>🔴 Errors to minimize</span>
+                </div>
+            `;
+        }
+
+        function renderThresholdChart(data) {
+            const container = document.getElementById('thresholdChart');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);">No threshold data available</p>';
+                return;
+            }
+
+            let html = '<div class="threshold-chart">';
+            data.forEach(row => {
+                const precision = (row.precision * 100).toFixed(0);
+                const recall = (row.recall * 100).toFixed(0);
+                const f1 = (row.f1_score * 100).toFixed(0);
+                const fpr = (row.false_positive_rate * 100).toFixed(1);
+                
+                html += `
+                    <div class="threshold-row">
+                        <div class="threshold-label">${row.threshold}</div>
+                        <div class="threshold-bars">
+                            <div class="threshold-bar bar-precision" style="width:${precision}%"></div>
+                            <div class="threshold-bar bar-recall" style="width:${recall}%"></div>
+                            <div class="threshold-bar bar-f1" style="width:${f1}%"></div>
+                            <div class="threshold-bar bar-fpr" style="width:${Math.min(fpr * 5, 100)}%"></div>
+                        </div>
+                        <div class="threshold-value">F1: ${f1}%</div>
+                    </div>
+                `;
+            });
+            html += `
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--accent-cyan)"></div>Precision</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--success)"></div>Recall</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--accent-purple)"></div>F1</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div>FPR (×5)</div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function renderFeatures(phishing, legit) {
+            const container = document.getElementById('featuresContainer');
+            
+            const maxCoef = Math.max(
+                ...phishing.map(f => Math.abs(f.coefficient)),
+                ...legit.map(f => Math.abs(f.coefficient))
+            );
+
+            function renderList(features, isPhishing) {
+                return features.slice(0, 15).map(f => {
+                    const width = (Math.abs(f.coefficient) / maxCoef * 100).toFixed(0);
+                    const cls = isPhishing ? 'positive' : 'negative';
+                    return `
+                        <li class="feature-item">
+                            <span class="feature-name">${escapeHtml(f.feature)}</span>
+                            <div style="display:flex;align-items:center;">
+                                <span class="feature-coef ${cls}">${f.coefficient.toFixed(3)}</span>
+                                <div class="feature-bar">
+                                    <div class="feature-bar-fill ${cls}" style="width:${width}%"></div>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+                }).join('');
+            }
+
+            container.innerHTML = `
+                <div>
+                    <div class="section-title" style="color:var(--danger);">🚨 Phishing Indicators</div>
+                    <ul class="feature-list">${renderList(phishing, true)}</ul>
+                </div>
+                <div>
+                    <div class="section-title" style="color:var(--success);">✅ Legitimate Indicators</div>
+                    <ul class="feature-list">${renderList(legit, false)}</ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

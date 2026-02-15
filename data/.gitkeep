@@ -1,0 +1,2 @@
+# Place your CEAS phishing dataset here as raw.csv
+# Required columns: sender, receiver, date, subject, body, label, urls
