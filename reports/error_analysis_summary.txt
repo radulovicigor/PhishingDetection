@@ -1,0 +1,31 @@
+ERROR ANALYSIS SUMMARY
+======================
+
+Test set size: 5200
+  True positives:  2384
+  True negatives:  2772
+  False positives: 24 (legitimate emails predicted as phishing)
+  False negatives: 20 (phishing emails predicted as legitimate)
+
+--- False Positives (legit → predicted phishing) ---
+Average heuristics (why the model may have been misled):
+  keyword_hits:    6.208333333333333
+  url_count:       1.0
+  suspicious_tld:  1.0
+  word_count:      25.458333333333332
+  text_len:        182.08333333333334
+
+--- False Negatives (phishing → predicted legit) ---
+Average heuristics (model missed these signals):
+  keyword_hits:    1.55
+  url_count:       0.9
+  suspicious_tld:  0.0
+  word_count:      21.5
+
+--- Comparison: TN vs FP (legit emails) ---
+  TN avg keyword_hits:   1.6677489177489178
+  FP avg keyword_hits:   6.208333333333333
+
+--- Comparison: TP vs FN (phishing emails) ---
+  TP avg keyword_hits:   6.346057046979865
+  FN avg keyword_hits:   1.55

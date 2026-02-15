@@ -1,0 +1,57 @@
+{
+  "counts": {
+    "true_positives": 2384,
+    "true_negatives": 2772,
+    "false_positives": 24,
+    "false_negatives": 20,
+    "total_test": 5200
+  },
+  "false_positives_avg_heuristics": {
+    "url_count": 1.0,
+    "has_url": 1.0,
+    "exclamation_count": 0.4166666666666667,
+    "question_count": 0.0,
+    "text_len": 182.08333333333334,
+    "word_count": 25.458333333333332,
+    "caps_ratio": 0.009975749559082892,
+    "keyword_hits": 6.208333333333333,
+    "suspicious_tld": 1.0,
+    "uses_shortener": 0.0
+  },
+  "false_negatives_avg_heuristics": {
+    "url_count": 0.9,
+    "has_url": 0.5,
+    "exclamation_count": 0.0,
+    "question_count": 0.0,
+    "text_len": 144.65,
+    "word_count": 21.5,
+    "caps_ratio": 0.006855716878402904,
+    "keyword_hits": 1.55,
+    "suspicious_tld": 0.0,
+    "uses_shortener": 0.0
+  },
+  "true_negatives_avg_heuristics": {
+    "url_count": 0.7352092352092352,
+    "has_url": 0.5223665223665224,
+    "exclamation_count": 0.0,
+    "question_count": 0.0,
+    "text_len": 140.69264069264068,
+    "word_count": 20.894300144300143,
+    "caps_ratio": 0.006442754399466205,
+    "keyword_hits": 1.6677489177489178,
+    "suspicious_tld": 0.0,
+    "uses_shortener": 0.0
+  },
+  "true_positives_avg_heuristics": {
+    "url_count": 1.0,
+    "has_url": 1.0,
+    "exclamation_count": 0.30956375838926176,
+    "question_count": 0.0,
+    "text_len": 182.25671140939596,
+    "word_count": 25.831795302013422,
+    "caps_ratio": 0.009856711656089406,
+    "keyword_hits": 6.346057046979865,
+    "suspicious_tld": 1.0,
+    "uses_shortener": 0.0
+  }
+}

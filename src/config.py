@@ -23,6 +23,9 @@ CONFUSION_MATRIX_PATH = REPORTS_DIR / "confusion_matrix.csv"
 THRESHOLD_METRICS_PATH = REPORTS_DIR / "threshold_metrics.csv"
 TOP_FEATURES_PHISHING_PATH = REPORTS_DIR / "top_features_phishing.csv"
 TOP_FEATURES_LEGIT_PATH = REPORTS_DIR / "top_features_legit.csv"
+CROSS_VALIDATION_RESULTS_PATH = REPORTS_DIR / "cross_validation_results.json"
+ERROR_ANALYSIS_PATH = REPORTS_DIR / "error_analysis.json"
+ERROR_ANALYSIS_SUMMARY_PATH = REPORTS_DIR / "error_analysis_summary.txt"
 
 # =============================================================================
 # RANDOM STATE & REPRODUCIBILITY
@@ -81,6 +84,11 @@ URL_SHORTENERS: Set[str] = {
 # EVALUATION THRESHOLDS
 # =============================================================================
 EVALUATION_THRESHOLDS: List[float] = [0.3, 0.5, 0.7, 0.9]
+
+# =============================================================================
+# CROSS-VALIDATION (statistička validacija)
+# =============================================================================
+CV_FOLDS: int = 5
 
 # =============================================================================
 # EXPLAINABILITY
